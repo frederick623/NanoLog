@@ -45,6 +45,8 @@ int main()
   return 0;
 }
 ```
+# Benchmark
+
 Running ./cmake-build-debug/nanolog_vs_boostlog_benchmark
 Run on (10 X 24 MHz CPU s)
 CPU Caches:
@@ -52,6 +54,7 @@ CPU Caches:
   L1 Instruction 128 KiB
   L2 Unified 6144 KiB (x10)
 Load Average: 1.43, 1.37, 1.33
+```
 --------------------------------------------------------------------------------------------------
 Benchmark                                                        Time             CPU   Iterations
 --------------------------------------------------------------------------------------------------
@@ -64,3 +67,4 @@ BM_BoostLog_Async/iterations:100000/real_time/threads:4      13514 ns         41
 BM_BoostLog_Sync/iterations:100000/real_time/threads:1         737 ns          737 ns       100000
 BM_BoostLog_Sync/iterations:100000/real_time/threads:2        3124 ns         2446 ns       200000
 BM_BoostLog_Sync/iterations:100000/real_time/threads:4       12556 ns         3861 ns       400000
+```
