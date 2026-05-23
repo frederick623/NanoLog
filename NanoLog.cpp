@@ -400,7 +400,7 @@ namespace nanolog
     private:
     	size_t const m_size;
     	Item * m_ring;
-    	std::atomic < unsigned int > m_write_index;
+    	alignas(64) std::atomic < unsigned int > m_write_index;
 	char pad[64];
     	unsigned int m_read_index;
     };
@@ -490,7 +490,8 @@ namespace nanolog
 		    }
 		    else
 		    {
-				while (m_write_index.load(std::memory_order_acquire) >= Buffer::size);
+				while (m_write_index.load(std::memory_order_acquire) >= Buffer::size)
+				    std::this_thread::yield();
 				push(std::move(logline));
 		    }
     	}
@@ -522,14 +523,14 @@ namespace nanolog
 		}
 
 	    private:
-		void setup_next_write_buffer()
-		{
-		    std::unique_ptr < Buffer > next_write_buffer(new Buffer());
-		    m_current_write_buffer.store(next_write_buffer.get(), std::memory_order_release);
-		    SpinLock spinlock(m_flag);
-		    m_buffers.push(std::move(next_write_buffer));
-		    m_write_index.store(0, std::memory_order_relaxed);
-		}
+    	void setup_next_write_buffer()
+    	{
+    		std::unique_ptr < Buffer > next_write_buffer(new Buffer());
+    		m_current_write_buffer.store(next_write_buffer.get(), std::memory_order_release);
+    		SpinLock spinlock(m_flag);
+    		m_buffers.push(std::move(next_write_buffer));
+    		m_write_index.store(0, std::memory_order_release);
+    	}
 
 		Buffer * get_next_read_buffer()
 		{
@@ -543,7 +544,7 @@ namespace nanolog
 		std::atomic_flag m_flag;
 		// Producer-hot fields on their own cache line.
 		alignas(64) std::atomic < Buffer * > m_current_write_buffer;
-		std::atomic < unsigned int > m_write_index;
+		alignas(64) std::atomic < unsigned int > m_write_index;
 		// Consumer-hot fields on their own cache line.
 		alignas(64) Buffer * m_current_read_buffer;
 		unsigned int m_read_index;
