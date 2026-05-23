@@ -45,7 +45,7 @@ namespace nanolog
 	NanoLogLine(NanoLogLine &&) = default;
 	NanoLogLine& operator=(NanoLogLine &&) = default;
 
-	void stringify(std::ostream & os);
+	LogLevel stringify(std::ostream & os);
 
 	NanoLogLine& operator<<(char arg);
 	NanoLogLine& operator<<(int32_t arg);
