@@ -47,6 +47,7 @@ int main()
 ```
 # Benchmark
 
+```
 Running ./cmake-build-debug/nanolog_vs_boostlog_benchmark
 Run on (10 X 24 MHz CPU s)
 CPU Caches:
@@ -54,7 +55,6 @@ CPU Caches:
   L1 Instruction 128 KiB
   L2 Unified 6144 KiB (x10)
 Load Average: 1.43, 1.37, 1.33
-```
 --------------------------------------------------------------------------------------------------
 Benchmark                                                        Time             CPU   Iterations
 --------------------------------------------------------------------------------------------------
