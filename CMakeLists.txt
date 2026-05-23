@@ -24,7 +24,7 @@ find_package(benchmark REQUIRED)
 # CMP0167: use Boost's own CMake config files rather than the legacy FindBoost.
 # ---------------------------------------------------------------------------
 cmake_policy(SET CMP0167 NEW)
-find_package(Boost REQUIRED COMPONENTS log log_setup thread filesystem)
+find_package(Boost COMPONENTS log log_setup thread filesystem)
 
 # ---------------------------------------------------------------------------
 # NanoLog static library (compiled once, linked by all targets)
@@ -35,22 +35,27 @@ target_link_libraries(nanolog PUBLIC Threads::Threads)
 
 # ---------------------------------------------------------------------------
 # NanoLog vs Boost.Log — Google Benchmark
+#   Only built when Boost (log, log_setup, thread, filesystem) is available.
 #   Compares NanoLog guaranteed-async, Boost.Log async frontend, and
 #   Boost.Log sync frontend across 1 / 2 / 4 concurrent threads.
 #   Output logs go to /tmp/ to avoid polluting the build tree.
 # ---------------------------------------------------------------------------
-add_executable(nanolog_vs_boostlog_benchmark
-    nanolog_vs_boostlog_benchmark.cpp
-)
-target_compile_definitions(nanolog_vs_boostlog_benchmark PRIVATE
-    BOOST_LOG_DYN_LINK          # match the Homebrew dynamic Boost.Log libs
-)
-target_link_libraries(nanolog_vs_boostlog_benchmark PRIVATE
-    nanolog
-    benchmark::benchmark
-    Boost::log
-    Boost::log_setup
-    Boost::thread
-    Boost::filesystem
-)
+if(Boost_FOUND)
+    add_executable(nanolog_vs_boostlog_benchmark
+        nanolog_vs_boostlog_benchmark.cpp
+    )
+    target_compile_definitions(nanolog_vs_boostlog_benchmark PRIVATE
+        BOOST_LOG_DYN_LINK          # match the Homebrew dynamic Boost.Log libs
+    )
+    target_link_libraries(nanolog_vs_boostlog_benchmark PRIVATE
+        nanolog
+        benchmark::benchmark
+        Boost::log
+        Boost::log_setup
+        Boost::thread
+        Boost::filesystem
+    )
+else()
+    message(STATUS "Boost not found — skipping nanolog_vs_boostlog_benchmark")
+endif()
 
