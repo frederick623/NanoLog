@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.51)
 project(NanoLog LANGUAGES CXX)
 
 # NanoLog.cpp uses <format>, which requires C++20
@@ -40,7 +40,7 @@ target_link_libraries(nanolog PUBLIC Threads::Threads)
 #   Boost.Log sync frontend across 1 / 2 / 4 concurrent threads.
 #   Output logs go to /tmp/ to avoid polluting the build tree.
 # ---------------------------------------------------------------------------
-if(Boost_FOUND)
+if(Boost_FOUND AND PROJECT_IS_TOP_LEVEL)
     add_executable(nanolog_vs_boostlog_benchmark
         nanolog_vs_boostlog_benchmark.cpp
     )
@@ -56,6 +56,6 @@ if(Boost_FOUND)
         Boost::filesystem
     )
 else()
-    message(STATUS "Boost not found — skipping nanolog_vs_boostlog_benchmark")
+    message(STATUS "Skipping nanolog_vs_boostlog_benchmark")
 endif()
 
