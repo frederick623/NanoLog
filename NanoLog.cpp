@@ -551,13 +551,29 @@ namespace nanolog
 		char m_consumer_pad[64 - sizeof(Buffer *) - sizeof(unsigned int)];
     };
 
+    static std::string make_datetime_string()
+    {
+		auto now = std::chrono::system_clock::now();
+		auto t = std::chrono::system_clock::to_time_t(now);
+		struct tm tm_info;
+#if defined(_MSC_VER)
+		localtime_s(&tm_info, &t);
+#else
+		localtime_r(&t, &tm_info);
+#endif
+		char buf[16];
+		std::strftime(buf, sizeof(buf), "%Y%m%d%H%M%S", &tm_info);
+		return buf;
+    }
+
     class FileWriter
     {
 		static constexpr size_t kBatchFlushBytes = 64 * 1024;
-	    public:
+		    public:
 		FileWriter(std::string const & log_directory, std::string const & log_file_name, uint32_t log_file_roll_size_mb)
 		    : m_log_file_roll_size_bytes(log_file_roll_size_mb * 1024 * 1024)
-		    , m_name(log_directory + log_file_name)
+		    , m_log_directory(log_directory)
+		    , m_datetime(make_datetime_string())
 		{
 		    m_batch.reserve(kBatchFlushBytes + 4096);
 		    roll_file();
@@ -612,10 +628,7 @@ namespace nanolog
 
 		    m_bytes_written = 0;
 		    m_os.reset(new std::ofstream());
-		    std::string log_file_name = m_name;
-		    log_file_name.append(".");
-		    log_file_name.append(std::to_string(++m_file_number));
-		    log_file_name.append(".txt");
+		    std::string log_file_name = m_log_directory + m_datetime + "_" + std::format("{:03d}", ++m_file_number) + ".log";
 		    m_os->open(log_file_name, std::ofstream::out | std::ofstream::trunc);
 		}
 
@@ -623,7 +636,8 @@ namespace nanolog
 		uint32_t m_file_number = 0;
 		std::streamoff m_bytes_written = 0;
 		uint32_t const m_log_file_roll_size_bytes;
-		std::string const m_name;
+		std::string const m_log_directory;
+		std::string const m_datetime;
 		std::unique_ptr < std::ofstream > m_os;
 		std::string m_batch;
 		std::ostringstream m_scratch;

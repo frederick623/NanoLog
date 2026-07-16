@@ -21,7 +21,7 @@
 int main()
 {
   // Ensure initialize is called once prior to logging.
-  // This will create log files like /tmp/nanolog1.txt, /tmp/nanolog2.txt etc.
+  // This will create log files like /tmp/20260716141516_001.log, /tmp/20260716141516_002.log etc.
   // Log will roll to the next file after every 1MB.
   // This will initialize the guaranteed logger.
   nanolog::initialize(nanolog::GuaranteedLogger(), "/tmp/", "nanolog", 1);
